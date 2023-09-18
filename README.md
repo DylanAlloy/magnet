@@ -2,7 +2,11 @@
 
 <small>small, efficient embedding (SL, 'small language') model toolkit</small>
 
-<small>_~ finetune SOTA models on knowledge bases, rapidly ~_</small>
+<small>
+
+_~ finetune SOTA models on knowledge bases, rapidly ~_
+
+</small>
 
 ## 🎉 usage
 
