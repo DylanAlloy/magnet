@@ -42,12 +42,12 @@ _minimum_ requirements for ~6000 documents from a knowledge base:
 
 | ⚡️ Processor 	| 𝍌 RAM 	| 📝 # Processed 	| 📊 Task 	| 🧠 Model Prep 	| 🏁 Time 	| ⚙️ Params 	|
 |---	|---	|---	|---	|---	|---	|---	|
-| M1 Max 10-core 	| 32GB 	| **5,725** 	| `Processor.export_with_sentences` 	| `bge-large-en-v1.5` 	| _06m 05s_ 	| - 	|
+| M1 Max 10-core 	| 32GB 	| **5,725** 	| `Processor.export_with_sentences` 	| `bge-large-en-v1.5` 	| _37s_ 	| - 	|
 | M1 Max 10-core 	| 32GB 	| **178** 	| `FinePrep.generate_scored_data` 	| `bge-large-en-v1.5` 	| _03h 07m 05s_ 	| `use_multiprocessing`, `split=32` 	|
 | M1 Max 10-core 	| 32GB 	| **75,864** 	| `FinePrep.generate_training_data` 	| `bge-large-en-v1.5` 	| _01m 08s_ 	| - 	|
 | M1 Max 10-core 	| 32GB 	| **75,852** 	| `FinePrep.find_knn_neg` 	| `bge-large-en-v1.5` 	| _01h 00m 40s_ 	| `sample_range=[0,500]`, `num_hard_negatives=15` 	|
 
-   - 💻 M1 Max 10-core - **_`04h 13m 58s`_ ⌛️ to synthesize a dataset for finetuned embeddings from a knowledge base containing 5725 articles worth of information**
+   - 💻 M1 Max 10-core - **_`04h 09m 20s`_ ⌛️ to synthesize a dataset for finetuned embeddings from a knowledge base containing 5725 articles worth of information**
 
 
 

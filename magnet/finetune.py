@@ -5,7 +5,20 @@ from .utils import _f, Utils
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import faiss
+from spacy.lang.en import English
 
+def _sentence_splitter(data, nlp):
+    """
+    The function `_sentence_splitter` takes in a string `data` and uses the spaCy library to split
+    the string into a list of sentences.
+
+    :param data: The `data` parameter is a string that represents the text that you want to split
+    into sentences
+    :return: a list of sentences.
+    """
+    nlp.max_length = len(data) + 100
+    _ = nlp(data)
+    return list([str(x) for x in _.sents])
 
 def _create_index(embeddings, use_gpu):
     """
@@ -81,6 +94,7 @@ def _score_data_job(args):
         model,
         prompt,
         task,
+        nlp
     ) = args
     pbar = tqdm(range(chunk_start, chunk_end))
     for i in pbar:
@@ -90,7 +104,7 @@ def _score_data_job(args):
         q1, q2 = (
             (
                 df["sentences"][sentences_index],
-                Utils().sentence_splitter(df[plaintext_column][context_index]),
+                _sentence_splitter(df[plaintext_column][context_index], nlp),
             )
             if task == "similarity"
             else (df["sentences"][sentences_index], df[plaintext_column][context_index])
@@ -158,6 +172,9 @@ class FinePrep:
             if cleaned_dir
             else _f("warn", "no cleaned_dir passed!")
         )
+        nlp = English()
+        nlp.add_pipe("sentencizer")
+        self.nlp = nlp
         _f(
             "info", "FinePrep init"
         ) if self.filename and self.raw_dir and self.cleaned_dir else _f(
@@ -336,6 +353,7 @@ class FinePrep:
                                     _model,
                                     _prompt,
                                     task,
+                                    self.nlp
                                 )
                             )
                             _f(
@@ -365,6 +383,7 @@ class FinePrep:
                             _model,
                             _prompt,
                             task,
+                            self.nlp
                         )
 
                 final_path = os.path.join(self.cleaned_dir, f"{self.filename}.json")
