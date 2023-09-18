@@ -4,7 +4,7 @@
 
 <small>
 
-_~ finetune SOTA models on knowledge bases, rapidly ~_
+~ finetune SOTA models on knowledge bases, rapidly ~
 
 </small>
 
