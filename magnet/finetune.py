@@ -60,14 +60,12 @@ def _score_data_job(args):
             if task == "similarity"
             else (df["sentences"][sentences_index], df[plaintext_column][context_index])
         )
-        q1 = [x for x in q1 if len(x)>0]
-        q2= [x for x in q2 if len(x)>0]
-        _min = min(len(q1), len(q2))
-        if _min > 0:
+        _min = min([len(q1), len(q2)])
+        if _min > 2:
             q1, q2 = (
-                (random.sample(q1, _min), random.sample(q2, _min))
+                (random.sample(list(q1), _min), random.sample(list(q2), _min))
                 if task == "similarity"
-                else ([prompt + s for s in random.sample(q1, _min)], q2)
+                else ([prompt + s for s in random.sample(list(q1), _min)], list(q2))
             )
             for _s in range(_min):
                 emb1 = model.encode(q1, normalize_embeddings=True)
@@ -151,7 +149,7 @@ class FinePrep:
             _scores = row.scores
             context_sentences = row.context_sentences
             quantile = np.quantile(_scores, quant)
-            (_pos, _neg) = ([context_sentences[s] for s in range(len(context_sentences)) if _scores[s] > quantile], [context_sentences[s] for s in range(len(context_sentences)) if _scores[s] < quantile])
+            _pos, _neg = ([context_sentences[s] for s in range(len(context_sentences)) if _scores[s] > quantile], [context_sentences[s] for s in range(len(context_sentences)) if _scores[s] < quantile])
             if min(len(_pos), len(_neg)) > 0:
                 json.dump(
                     {
@@ -175,7 +173,7 @@ class FinePrep:
 
     def generate_scored_data(
         self,
-        group_by: str = "answerId",
+        group_by: str = "id",
         plaintext_column: str = "clean",
         split: int = 16,
         model: str = "BAAI/bge-large-en-v1.5",
@@ -352,4 +350,4 @@ class FinePrep:
     def _sentence_splitter(self, data):
         self.nlp.max_length = len(data) + 100
         _ = self.nlp(data)
-        return list([str(x) for x in _.sents if len(x)>0])
+        return list([str(x) for x in _.sents])
