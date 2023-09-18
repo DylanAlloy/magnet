@@ -128,7 +128,7 @@ class Utils:
         """
         nlp = English()
         nlp.add_pipe("sentencizer")
-        nlp.max_length = len(_) + 100
+        nlp.max_length = len(data) + 100
         _ = nlp(data)
         return list([str(x) for x in _.sents])
 
