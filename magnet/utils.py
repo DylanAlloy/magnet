@@ -84,11 +84,11 @@ def _f(
         color_code = matching_tags[0][2]
         if voice and tag_text in ["SUCCESS", "INFO"]:
             preload_models()
-            processor = AutoProcessor.from_pretrained("suno/bark")
-            model = BarkModel.from_pretrained("suno/bark")
+            processor = AutoProcessor.from_pretrained("suno/bark-small")
+            model = BarkModel.from_pretrained("suno/bark-small")
             voice_preset = "v2/en_speaker_9"
             inputs = processor(
-                f"[WOMAN] {tag_text}! {' '.join(body.split(' ')[0:10])}",
+                f"[WOMAN]: {' '.join(body.split(' ')[0:10])}",
                 voice_preset=voice_preset,
             )
             audio_array = model.generate(**inputs, pad_token_id=10000)

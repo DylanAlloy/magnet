@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 from .utils import _f, Utils
-
+from tqdm import tqdm
 
 class Processor:
     def __init__(
@@ -89,7 +89,7 @@ class Processor:
                 _f("wait", f"get coffee or tea - {len(self.df)} processing...")
                 self.df["sentences"] = self.df[category].apply(
                     lambda x: [
-                        self.utils.clean(s) for s in self.utils.sentence_splitter(x)
+                        self.utils.clean(s) for s in tqdm(self.utils.sentence_splitter(x), desc=_f('SUCCESS','processed',no_print=True,luxe=True))
                     ]
                 )
                 final_path = os.path.join(self.cleaned_dir, f"{self.filename}.json")
