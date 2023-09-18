@@ -1,12 +1,12 @@
 import re, os, torch, random
 import boto3
+from spacy.lang.en import English
 
 def _f(
     tag: str = None,
     body: any = None,
     no_print: bool = False,
-    luxe: bool = False,
-    voice: bool = False,
+    luxe: bool = False
 ):
     """
     The `_f` function is a logging utility that prints messages with different tags and colors based on
@@ -96,7 +96,9 @@ def _f(
 
 class Utils:
     def __init__(self):
-        pass
+        nlp = English()
+        nlp.add_pipe("sentencizer")
+        self.nlp = nlp
 
     def check_cuda(self):
         """
@@ -131,6 +133,8 @@ class Utils:
         try:
             _ = "" if "test" in _.lower() or len(_) < 10 else _
             _ = _.strip()
+            _ = _.replace('\n','')
+            _ = _.replace('\t','')
             _ = _.replace('"', "'")
             _ = _.replace("\u00a0", "")
             _ = _.replace("\t", "")
