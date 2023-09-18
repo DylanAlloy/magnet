@@ -372,9 +372,7 @@ class FinePrep:
                         training_data["context_sentences"],
                         training_data["context_id"],
                     ) = ("", "", "", "", "")
-                    for i in range(int(len(self.df) / split)):
-                        _score_data_job(
-                            group_by,
+                    args_list = [group_by,
                             plaintext_column,
                             i,
                             i + 1,
@@ -383,7 +381,10 @@ class FinePrep:
                             _model,
                             _prompt,
                             task,
-                            self.nlp
+                            self.nlp]
+                    for i in range(int(len(self.df) / split)):
+                        _score_data_job(
+                            args_list
                         )
 
                 final_path = os.path.join(self.cleaned_dir, f"{self.filename}.json")
