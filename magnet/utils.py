@@ -2,10 +2,6 @@ from spacy.lang.en import English
 import re, os, torch, random
 import boto3
 from transformers import AutoProcessor, BarkModel
-from bark import SAMPLE_RATE, preload_models
-from scipy.io.wavfile import write as write_wav
-from playsound import playsound
-
 
 def _f(
     tag: str = None,
@@ -82,20 +78,6 @@ def _f(
         tag_text = matching_tags[0][0]
         emoji = matching_tags[0][1]
         color_code = matching_tags[0][2]
-        if voice and tag_text in ["SUCCESS", "INFO"]:
-            preload_models()
-            processor = AutoProcessor.from_pretrained("suno/bark-small")
-            model = BarkModel.from_pretrained("suno/bark-small")
-            voice_preset = "v2/en_speaker_9"
-            inputs = processor(
-                f"[WOMAN]: {' '.join(body.split(' ')[0:10])}",
-                voice_preset=voice_preset,
-            )
-            audio_array = model.generate(**inputs, pad_token_id=10000)
-            audio_array = audio_array.cpu().numpy().squeeze()
-            write_wav("_.wav", SAMPLE_RATE, audio_array)
-            playsound("_.wav")
-            return os.remove("_.wav")
         if luxe:
             return (
                 f"{_luxe[random.randint(0,len(_luxe)-1)]} {_joy[random.randint(0,len(_joy)-1)]} {_matrix[random.randint(0,len(_matrix)-1)]}: {body}\033[0m"
