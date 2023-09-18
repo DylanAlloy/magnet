@@ -1,7 +1,5 @@
-from spacy.lang.en import English
 import re, os, torch, random
 import boto3
-from transformers import AutoProcessor, BarkModel
 
 def _f(
     tag: str = None,
@@ -116,21 +114,6 @@ class Utils:
             return True
         else:
             _f("warn", "CUDA is not available on this machine.")
-
-    def sentence_splitter(self, data):
-        """
-        The function `_sentence_splitter` takes in a string `data` and uses the spaCy library to split
-        the string into a list of sentences.
-
-        :param data: The `data` parameter is a string that represents the text that you want to split
-        into sentences
-        :return: a list of sentences.
-        """
-        nlp = English()
-        nlp.add_pipe("sentencizer")
-        nlp.max_length = len(data) + 100
-        _ = nlp(data)
-        return list([str(x) for x in _.sents])
 
     def clean(self, _):
         """

@@ -2,6 +2,20 @@ import pandas as pd
 import os
 from .utils import _f, Utils
 from tqdm import tqdm
+from spacy.lang.en import English
+
+def _sentence_splitter(data, nlp):
+    """
+    The function `_sentence_splitter` takes in a string `data` and uses the spaCy library to split
+    the string into a list of sentences.
+
+    :param data: The `data` parameter is a string that represents the text that you want to split
+    into sentences
+    :return: a list of sentences.
+    """
+    nlp.max_length = len(data) + 100
+    _ = nlp(data)
+    return list([str(x) for x in _.sents])
 
 class Processor:
     def __init__(
@@ -35,6 +49,9 @@ class Processor:
             if cleaned_dir
             else _f("warn", "no cleaned_dir passed!")
         )
+        nlp = English()
+        nlp.add_pipe("sentencizer")
+        self.nlp = nlp
         self.utils = Utils()
         _f(
             "info", "Processor init"
@@ -89,7 +106,7 @@ class Processor:
                 _f("wait", f"get coffee or tea - {len(self.df)} processing...")
                 self.df["sentences"] = self.df[category].apply(
                     lambda x: [
-                        self.utils.clean(s) for s in tqdm(self.utils.sentence_splitter(x), desc=_f('SUCCESS','processed',no_print=True,luxe=True))
+                        self.utils.clean(s) for s in tqdm(_sentence_splitter(x, self.nlp), desc=_f('SUCCESS','processed',no_print=True,luxe=True))
                     ]
                 )
                 final_path = os.path.join(self.cleaned_dir, f"{self.filename}.json")
