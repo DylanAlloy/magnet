@@ -372,6 +372,7 @@ class FinePrep:
                         training_data["context_sentences"],
                         training_data["context_id"],
                     ) = ("", "", "", "", "")
+                    i = int((int(len(self.df) / split)))
                     args_list = [group_by,
                             plaintext_column,
                             i,
