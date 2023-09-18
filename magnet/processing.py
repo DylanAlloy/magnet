@@ -106,7 +106,7 @@ class Processor:
                 _f("wait", f"get coffee or tea - {len(self.df)} processing...")
                 self.df["sentences"] = self.df[category].apply(
                     lambda x: [
-                        self.utils.clean(s) for s in tqdm(_sentence_splitter(x, self.nlp), desc=_f('SUCCESS','processed',no_print=True,luxe=True))
+                        self.utils.clean(s) for s in _sentence_splitter(x, self.nlp)
                     ]
                 )
                 final_path = os.path.join(self.cleaned_dir, f"{self.filename}.json")
