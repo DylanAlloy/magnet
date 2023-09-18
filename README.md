@@ -67,3 +67,7 @@ The larger datasets listed are curated with a lot more attention to quality for 
 
 - [x] finish `README.md`
 - [ ] `deepspeed` integration for model parallelism on multiple GPU
+
+## bad code
+
+- [ ] `spacy.nlp` is used poorly throughout, need to make it possible for folks to make sentence splitter hooks of their own and `spacy` can be a default fallback

@@ -193,16 +193,23 @@ class FinePrep:
         try:
             if isinstance(raw, str):
                 raw_data_dir = os.path.join(self.raw_dir, raw)
-                if raw.endswith(".csv"):
-                    self.df = pd.read_csv(raw_data_dir)
-                elif raw.endswith(".json"):
-                    self.df = pd.read_json(raw_data_dir)
-                _f("success", f"loaded - {raw_data_dir}")
+                file_extension = os.path.splitext(raw)[-1]
+                file_handlers = {
+                    ".csv": pd.read_csv,
+                    ".json": pd.read_json,
+                    ".xlsx": pd.read_excel,
+                    ".parquet": pd.read_parquet,
+                }
+                if file_extension in file_handlers:
+                    self.df = file_handlers[file_extension](raw_data_dir)
+                    _f("success", f"loaded - {raw_data_dir}")
+                else:
+                    _f("fatal", "unsupported file type")
             elif isinstance(raw, pd.DataFrame):
                 self.df = raw
                 _f("success", f"loaded - {raw}")
             else:
-                _f("fatal", "type(data) not in [str, dict, pd.DataFrame]")
+                _f("fatal", "data type not in [csv, json, xlsx, parquet, pd.DataFrame]")
         except Exception as e:
             _f("fatal", e)
 
@@ -388,7 +395,7 @@ class FinePrep:
                             args_list
                         )
 
-                final_path = os.path.join(self.cleaned_dir, f"{self.filename}.json")
+                final_path = os.path.join(self.cleaned_dir, f"{self.filename}.parquet")
                 training_data.to_json(final_path)
                 self.df = training_data
                 _f("success", f"saved to - {final_path}")

@@ -109,7 +109,7 @@ class Processor:
                         self.utils.clean(s) for s in _sentence_splitter(x, self.nlp)
                     ]
                 )
-                final_path = os.path.join(self.cleaned_dir, f"{self.filename}.json")
+                final_path = os.path.join(self.cleaned_dir, f"{self.filename}.parquet")
                 self.df.to_json(final_path, default_handler=str)
                 return _f("success", f"🗳️  - {final_path}")
             except Exception as e:
