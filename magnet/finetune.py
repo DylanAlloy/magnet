@@ -348,6 +348,13 @@ class FinePrep:
             _f("fatal", e)
 
     def bge_sentence_splitter(self, data):
+        to_pop = []
         self.utils.nlp.max_length = len(data) + 100
-        _ = self.utils.nlp(data)
-        return list([str(x) for x in _.sents])
+        _ = list([str(x) for x in self.utils.nlp(data).sents])
+        for sentence in range(len(_)-1):
+            if len(_[sentence])>1024:
+                chunked = [_[sentence][i:i+1024] for i in range(0, len(_[sentence]), 1024)]
+                _+=chunked
+                to_pop.append(sentence)
+        [_.pop(sentence) for sentence in to_pop]
+        return _
