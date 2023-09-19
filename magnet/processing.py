@@ -55,7 +55,7 @@ class Processor:
                 _f("wait", f"get coffee or tea - {len(self.df)} processing...")
                 self.df["sentences"] = self.df[category].apply(
                     lambda x: [
-                        s for s in self._sentence_splitter(self.utils.clean(x))
+                        s for s in self.bge_sentence_splitter(self.utils.clean(x))
                     ]
                 )
                 final_path = os.path.join(self.cleaned_dir, f"{self.filename}.parquet")
@@ -65,7 +65,16 @@ class Processor:
                 _f("fatal", e)
         else:
             return _f("fatal", "no data loaded!")
-    def _sentence_splitter(self, data):
+        
+    def bge_sentence_splitter(self, data):
         self.nlp.max_length = len(data) + 100
         _ = self.nlp(data)
-        return list([self.utils.clean(str(x)) for x in _.sents])
+        intermediate = [self.utils.clean(str(x)) for x in _.sents]
+        chunker = lambda x, n: [" ".join(x.split()[n:n + n]) for n in range(0, len(x.split()), n)]
+        chunked = []
+        for i in intermediate:
+            chunked+=chunker(i, 512) # line 7 https://huggingface.co/BAAI/bge-large-en/blob/main/tokenizer_config.json
+            diff = len(chunked)+(len(intermediate)-1)-len(intermediate)
+            if diff>0:
+                _f('warn', f'a sentence needed to be chunked {diff}x')
+        return chunked

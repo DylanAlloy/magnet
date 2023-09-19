@@ -228,7 +228,7 @@ class FinePrep:
                                     _model,
                                     _prompt,
                                     task,
-                                    self._sentence_splitter
+                                    self.bge_sentence_splitter
                                 )
                             )
                             _f(
@@ -258,7 +258,7 @@ class FinePrep:
                             _model,
                             _prompt,
                             task,
-                            self._sentence_splitter
+                            self.bge_sentence_splitter
                         ]
                     for i in range(int(len(self.df) / split)):
                         _score_data_job(
@@ -347,7 +347,7 @@ class FinePrep:
         except Exception as e:
             _f("fatal", e)
 
-    def _sentence_splitter(self, data):
+    def bge_sentence_splitter(self, data):
         self.nlp.max_length = len(data) + 100
         _ = self.nlp(data)
         return list([str(x) for x in _.sents])
