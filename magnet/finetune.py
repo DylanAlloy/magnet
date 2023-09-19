@@ -65,7 +65,7 @@ def _score_data_job(args):
             q1, q2 = (
                 (random.sample(list(q1), _min), random.sample(list(q2), _min))
                 if task == "similarity"
-                else ([prompt + s for s in random.sample(list(q1), _min)], list(q2))
+                else ([prompt + s for s in random.sample(list(q1), 1)], list(q2))
             )
             for _s in range(_min):
                 emb1 = model.encode(q1, normalize_embeddings=True)
