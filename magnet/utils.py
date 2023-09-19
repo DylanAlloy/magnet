@@ -131,7 +131,8 @@ class Utils:
                 f"this item may not process properly because it is a list: \n{_}",
             )
         try:
-            _ = "" if "test" in _.lower() or len(_) < 10 else _
+            if not isinstance(_, str):
+                _f('warn', f'non-string found {type(_)}')
             _ = _.strip()
             _ = _.replace('\n','')
             _ = _.replace('\t','')
