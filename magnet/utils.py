@@ -150,7 +150,7 @@ class Utils:
 
     def upload_to_s3(
         self,
-        file,
+        file_or_dir: str = None,
         keys: tuple = ("YOUR_ACCESS_KEY", "YOUR_SECRET_KEY"),
         bucket: str = None,
         bucket_path: str = None,
@@ -180,8 +180,19 @@ class Utils:
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
         )
-        _f("warn", f"uploading to S3 - {file}")
-        s3.upload_file(
-            os.path.abspath(file), bucket, f'{bucket_path}/{file.split("/")[-1]}'
-        )
-        _f("success", f'uploaded - {bucket}/{bucket_path}/{file.split("/")[-1]}')
+        _f("warn", f"uploading to S3 - {file_or_dir}")
+        if os.path.isfile(os.path.abspath(file_or_dir)):
+            s3.upload_file(
+                os.path.abspath(file_or_dir), bucket, f'{bucket_path}/{file_or_dir.split("/")[-1]}'
+            )
+            _f("success", f'uploaded - {bucket}/{bucket_path}/{file_or_dir.split("/")[-1]}')
+        elif os.path.isdir(os.path.abspath(file_or_dir)):
+            for filename in os.listdir(file_or_dir):
+                f = os.path.join(file_or_dir, filename)
+                s3.upload_file(
+                    os.path.abspath(f), bucket, f'{bucket_path}/{f.split("/")[-1]}'
+                )
+                _f("success", f'uploaded - {bucket}/{bucket_path}/{f.split("/")[-1]}')
+            
+        
+        
