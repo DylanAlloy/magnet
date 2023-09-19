@@ -62,17 +62,17 @@ def _score_data_job(args):
         )
         _min = min([len(q1), len(q2)])
         if _min > 2:
-            q1, q2 = (
-                (random.sample(list(q1), _min), random.sample(list(q2), _min))
-                if task == "similarity"
-                else ([prompt + s for s in random.sample(list(q1), 1)], list(q2))
-            )
+            if task == 'similarity':
+                q1, q2 = (random.sample(list(q1), _min), random.sample(list(q2), _min))
+            elif task == 'retrieval':
+                q1, q2 = ([prompt + s for s in random.sample(list(q1), 1)], list(q2))
+            _scores = []
             for _s in range(_min):
                 emb1 = model.encode(q1, normalize_embeddings=True)
                 emb2 = model.encode(q2, normalize_embeddings=True)
-                _scores = emb1 @ emb2.T
-                for _q, _score in zip(q1, _scores):
-                    _df = pd.DataFrame(
+                _scores.append(emb1 @ emb2.T)
+            for _q, _score in zip(q1, _scores):
+                _df = pd.DataFrame(
                         [
                             {
                                 "sentences": _q,
@@ -83,7 +83,7 @@ def _score_data_job(args):
                             }
                         ]
                     )
-                    training_data = pd.concat([training_data, _df], ignore_index=True)
+                training_data = pd.concat([training_data, _df], ignore_index=True)
                 pbar.set_description(
                     _f(
                         "success",
