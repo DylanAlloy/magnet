@@ -5,6 +5,7 @@ from .utils import _f, Utils
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import faiss
+import platform
 
 def _create_index(embeddings, use_gpu):
     index = faiss.IndexFlatIP(len(embeddings[0]))
@@ -200,7 +201,8 @@ class FinePrep:
                 )
 
                 if use_multiprocessing:
-                    num_processes = int(multiprocessing.cpu_count()/2)
+                    num_processes = int(multiprocessing.cpu_count()/2) \
+                        if platform.system() in ['Linux','Windows'] else multiprocessing.cpu_count()
                     chunk_size = int((int(len(self.df) / split) / num_processes))
 
                     with multiprocessing.Pool(processes=num_processes) as pool:
