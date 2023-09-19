@@ -117,7 +117,7 @@ class Utils:
         else:
             _f("warn", "CUDA is not available on this machine.")
 
-    def clean(self, _):
+    def normalize_text(self, _):
         """
         The `clean` function takes a string as input and performs various cleaning operations on it,
         such as removing whitespace, replacing characters, and removing curly braces.

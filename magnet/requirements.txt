@@ -7,3 +7,4 @@ transformers
 faiss-cpu
 faiss-gpu
 boto3
+nats-py

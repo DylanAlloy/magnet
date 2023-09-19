@@ -55,7 +55,7 @@ class Processor:
                 _f("wait", f"get coffee or tea - {len(self.df)} processing...")
                 self.df["sentences"] = self.df[category].apply(
                     lambda x: [
-                        str(s) for s in self.bge_sentence_splitter(self.utils.clean(x))
+                        str(s) for s in self.bge_sentence_splitter(self.utils.normalize_text(x))
                     ]
                 )
                 final_path = os.path.join(self.cleaned_dir, f"{self.filename}.parquet")
