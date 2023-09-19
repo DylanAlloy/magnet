@@ -109,7 +109,6 @@ class FinePrep:
             else _f("warn", "no cleaned_dir passed!")
         )
         self.utils = Utils()
-        self.nlp = self.utils.nlp
         _f(
             "info", "FinePrep init"
         ) if self.filename and self.raw_dir and self.cleaned_dir else _f(
@@ -180,6 +179,7 @@ class FinePrep:
         use_multiprocessing: bool = False,
         prompt: str = None,
         task: str = None,
+        splitter: any = None
     ):
         if task is None:
             return _f("fatal", 'please pass "retrieval" or "similarity" as `task`')
@@ -228,7 +228,7 @@ class FinePrep:
                                     _model,
                                     _prompt,
                                     task,
-                                    self.bge_sentence_splitter
+                                    self.bge_sentence_splitter if splitter is None else splitter
                                 )
                             )
                             _f(
@@ -258,7 +258,7 @@ class FinePrep:
                             _model,
                             _prompt,
                             task,
-                            self.bge_sentence_splitter
+                            self.bge_sentence_splitter if splitter is None else splitter
                         ]
                     for i in range(int(len(self.df) / split)):
                         _score_data_job(
@@ -348,6 +348,6 @@ class FinePrep:
             _f("fatal", e)
 
     def bge_sentence_splitter(self, data):
-        self.nlp.max_length = len(data) + 100
-        _ = self.nlp(data)
+        self.utils.nlp.max_length = len(data) + 100
+        _ = self.utils.nlp(data)
         return list([str(x) for x in _.sents])

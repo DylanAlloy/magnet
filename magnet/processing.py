@@ -18,7 +18,6 @@ class Processor:
         )
         
         self.utils = Utils()
-        self.nlp = self.utils.nlp
         _f(
             "info", "Processor init"
         ) if self.filename and self.raw_dir and self.cleaned_dir else _f(
@@ -49,13 +48,14 @@ class Processor:
         except Exception as e:
             _f("fatal", e)
 
-    def export_with_sentences(self, category: str = "clean"):
+    def export_with_sentences(self, category: str = "clean", splitter: any = None):
         if self.df is not None:
             try:
                 _f("wait", f"get coffee or tea - {len(self.df)} processing...")
+                sentence_splitter = self.bge_sentence_splitter if splitter is None else splitter
                 self.df["sentences"] = self.df[category].apply(
                     lambda x: [
-                        str(s) for s in self.bge_sentence_splitter(self.utils.normalize_text(x))
+                        str(s) for s in sentence_splitter(self.utils.normalize_text(x))
                     ]
                 )
                 final_path = os.path.join(self.cleaned_dir, f"{self.filename}.parquet")
@@ -67,6 +67,6 @@ class Processor:
             return _f("fatal", "no data loaded!")
         
     def bge_sentence_splitter(self, data):
-        self.nlp.max_length = len(data) + 100
-        _ = self.nlp(data).sents
+        self.utils.nlp.max_length = len(data) + 100
+        _ = self.utils.nlp(data).sents
         return _
