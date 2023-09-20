@@ -93,7 +93,6 @@ def _f(
     else:
         print(f"😭 UNKNOWN TAG - `{tag}`")
 
-
 class Utils:
     def __init__(self):
         nlp = English()

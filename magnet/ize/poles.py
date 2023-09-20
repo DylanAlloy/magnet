@@ -1,4 +1,4 @@
-import faiss, multiprocessing, platform
+import faiss
 import pandas as pd
 from magnet.utils import Utils, _f
 from sentence_transformers import SentenceTransformer
@@ -16,7 +16,7 @@ class Charge:
             model = SentenceTransformer(self.model)
             d = model[1].word_embedding_dimension
             sentences_index = faiss.IndexFlatL2(d)
-            if Utils.check_cuda():
+            if self.utils.check_cuda():
                 co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
                 sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
             if sentences_index.is_trained:
