@@ -8,6 +8,7 @@ data/
 raw/
 .DS_Store
 local_example.ipynb
+test.ipynb
 
 # C extensions
 *.so
