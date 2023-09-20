@@ -17,12 +17,12 @@ class Charge:
             d = model[1].word_embedding_dimension
             all_embeddings = []
             cuda = self.utils.check_cuda()
-            # if cuda:
-            #     sentences_index = faiss.IndexFlatIP(d)
-            #     co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
-            #     sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
-            # else:
-            sentences_index = faiss.IndexFlatL2(d)
+            if cuda:
+                sentences_index = faiss.IndexFlatIP(d)
+                co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
+                sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
+            else:
+                sentences_index = faiss.IndexFlatL2(d)
             if sentences_index.is_trained:
                 pbar = tqdm(range(len(df)))
                 for i in pbar:
@@ -40,7 +40,7 @@ class Charge:
                     )
                 _f('wait', f'indexing {len(all_embeddings)} objects')
                 sentences_index.add(np.asarray(all_embeddings, dtype=np.float32))
-                self.sentences_index = sentences_index # faiss.index_gpu_to_cpu(sentences_index) if cuda else
+                self.sentences_index = faiss.index_gpu_to_cpu(sentences_index) if cuda else sentences_index
                 _f('success', 'index created')
         except Exception as e:
             _f('fatal', e)
