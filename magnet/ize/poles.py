@@ -26,8 +26,9 @@ class Charge:
                 pbar = tqdm(range(len(df)))
                 for i in pbar:
                     sentences = df['sentences'].iloc[i]
-                    embeddings = model.encode(sentences, normalize_embeddings=True)
-                    all_embeddings.append([embeddings])
+                    embeddings = model.encode(sentences, batch_size=256)
+                    for embedding in embeddings:
+                        all_embeddings.append(embedding)
                     pbar.set_description(
                         _f(
                             "success",
@@ -36,10 +37,10 @@ class Charge:
                         ),
                         refresh=True,
                     )
-            _f('wait', f'indexing {len(all_embeddings)} objects')
-            sentences_index.add(np.asarray(all_embeddings, dtype=np.float32))
-            self.sentences_index = sentences_index
-            _f('success', 'index created')
+                _f('wait', f'indexing {len(all_embeddings)} objects')
+                sentences_index.add(np.asarray(all_embeddings, dtype=np.float32))
+                self.sentences_index = sentences_index
+                _f('success', 'index created')
         except Exception as e:
             _f('fatal', e)
     
