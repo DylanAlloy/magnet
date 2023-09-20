@@ -27,7 +27,7 @@ class Charge:
                 for i in pbar:
                     sentences = df['sentences'].iloc[i]
                     embeddings = model.encode(sentences, normalize_embeddings=True)
-                    all_embeddings.push(embeddings)
+                    all_embeddings.append(embeddings)
                     pbar.set_description(
                         _f(
                             "success",
