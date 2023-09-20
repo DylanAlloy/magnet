@@ -16,7 +16,8 @@ class Charge:
             model = SentenceTransformer(self.model)
             d = model[1].word_embedding_dimension
             all_embeddings = []
-            if self.utils.check_cuda():
+            cuda = self.utils.check_cuda()
+            if cuda:
                 sentences_index = faiss.IndexFlatIP(d)
                 co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
                 sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
@@ -39,7 +40,7 @@ class Charge:
                     )
                 _f('wait', f'indexing {len(all_embeddings)} objects')
                 sentences_index.add(np.asarray(all_embeddings, dtype=np.float32))
-                self.sentences_index = sentences_index
+                self.sentences_index = faiss.index_gpu_to_cpu(sentences_index, co=co) if cuda else sentences_index
                 _f('success', 'index created')
         except Exception as e:
             _f('fatal', e)
