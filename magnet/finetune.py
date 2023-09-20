@@ -276,7 +276,7 @@ class FinePrep:
             except Exception as e:
                 _f("fatal", e)
         else:
-            return _f("fatal", "no data loaded!")
+            return _f("fatal", "no data loaded!")    
 
     def find_knn_neg(
         self,
