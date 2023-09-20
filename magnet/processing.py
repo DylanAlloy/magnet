@@ -23,7 +23,22 @@ class Processor:
         ) if self.filename and self.raw_dir and self.cleaned_dir else _f(
             "warn", "Processor partially loaded..."
         )
-
+    def save(self, filename: str = None, raw: pd.DataFrame = None):
+        try:
+            file_extension = os.path.splitext(filename)[-1]
+            file_handlers = {
+                ".csv": raw.to_csv,
+                ".json": raw.to_json,
+                ".xlsx": raw.to_excel,
+                ".parquet": raw.to_parquet,
+            }
+            if file_extension in file_handlers:
+                file_handlers[file_extension](filename)
+                _f("success", f"saved - {filename}")
+            else:
+                _f("fatal", "unsupported data")
+        except Exception as e:
+            _f("fatal", e)
     def load(self, raw: str | pd.DataFrame = None):
         try:
             if isinstance(raw, str):
@@ -59,8 +74,8 @@ class Processor:
                     ]
                 )
                 final_path = os.path.join(self.cleaned_dir, f"{self.filename}.parquet")
-                self.df.to_parquet(final_path)
-                return _f("success", f"🗳️  - {final_path}")
+                self.save(final_path, self.df)
+                return
             except Exception as e:
                 _f("fatal", e)
         else:
@@ -68,11 +83,12 @@ class Processor:
         
     def bge_sentence_splitter(self, data):
         to_pop = []
+        chunk = 768
         self.utils.nlp.max_length = len(data) + 100
         _ = list([str(x) for x in self.utils.nlp(data).sents])
         for sentence in range(len(_)-1):
-            if len(_[sentence])>1024:
-                chunked = [_[sentence][i:i+1024] for i in range(0, len(_[sentence]), 1024)]
+            if len(_[sentence])>chunk:
+                chunked = [_[sentence][i:i+chunk] for i in range(0, len(_[sentence]), chunk)]
                 _+=chunked
                 to_pop.append(sentence)
         [_.pop(sentence) for sentence in to_pop]

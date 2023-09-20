@@ -134,6 +134,7 @@ class Utils:
             if not isinstance(_, str):
                 _f('warn', f'non-string found {type(_)}')
             _ = _.strip()
+            _ = _.replace('\ufeff','')
             _ = _.replace('\n','')
             _ = _.replace('\t','')
             _ = _.replace('"', "'")

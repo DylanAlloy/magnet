@@ -56,11 +56,11 @@ def _score_data_job(args):
             )
             q1, q2 = (
                 (
-                    df["sentences"].iat[sentences_index],
-                    splitter(df[plaintext_column].iat[context_index]),
+                    df["sentences"].iloc[sentences_index],
+                    splitter(df[plaintext_column].iloc[context_index]),
                 )
                 if task == "similarity"
-                else (df["sentences"][sentences_index], df[plaintext_column].iat[context_index])
+                else (df["sentences"].iloc[sentences_index], df[plaintext_column].iloc[context_index])
             )
             _min = min([len(q1), len(q2)])
             if _min > 2:
@@ -78,10 +78,10 @@ def _score_data_job(args):
                             [
                                 {
                                     "sentences": _q,
-                                    "id": int(df[group_by].iat[sentences_index]),
+                                    "id": int(df[group_by].iloc[sentences_index]),
                                     "scores": _score,
                                     "context_sentences": q2,
-                                    "context_id": df[group_by].iat[context_index],
+                                    "context_id": df[group_by].iloc[context_index],
                                 }
                             ]
                         )
@@ -89,13 +89,14 @@ def _score_data_job(args):
                     pbar.set_description(
                         _f(
                             "success",
-                            f"sample {_s} - comparing {int(df[group_by].iat[sentences_index])} 🧮 {df[group_by].iat[context_index]}",
+                            f"sample {_s} - comparing {int(df[group_by].iloc[sentences_index])} 🧮 {df[group_by].iloc[context_index]}",
                             no_print=True,
                         ),
                         refresh=True,
                     )
     except Exception as e:
         _f('fatal', e)
+        raise Exception
     return training_data
 
 class FinePrep:
@@ -140,6 +141,23 @@ class FinePrep:
                 _f("success", f"loaded - {raw}")
             else:
                 _f("fatal", "data type not in [csv, json, xlsx, parquet, pd.DataFrame]")
+        except Exception as e:
+            _f("fatal", e)
+
+    def save(self, filename: str = None, raw: pd.DataFrame = None):
+        try:
+            file_extension = os.path.splitext(filename)[-1]
+            file_handlers = {
+                ".csv": raw.to_csv,
+                ".json": raw.to_json,
+                ".xlsx": raw.to_excel,
+                ".parquet": raw.to_parquet,
+            }
+            if file_extension in file_handlers:
+                file_handlers[file_extension](filename)
+                _f("success", f"saved - {filename}")
+            else:
+                _f("fatal", "unsupported data")
         except Exception as e:
             _f("fatal", e)
 
@@ -270,8 +288,8 @@ class FinePrep:
                             args_list
                         )
 
-                final_path = os.path.join(self.cleaned_dir, f"{self.filename}.parquet")
-                training_data.to_parquet(final_path)
+                final_path = os.path.join(self.cleaned_dir, f"{self.filename}")
+                self.save(final_path, training_data)
                 self.df = training_data
                 _f("success", f"saved to - {final_path}")
             except Exception as e:
@@ -354,11 +372,12 @@ class FinePrep:
 
     def bge_sentence_splitter(self, data):
         to_pop = []
+        chunk = 768
         self.utils.nlp.max_length = len(data) + 100
         _ = list([str(x) for x in self.utils.nlp(data).sents])
         for sentence in range(len(_)-1):
-            if len(_[sentence])>1024:
-                chunked = [_[sentence][i:i+1024] for i in range(0, len(_[sentence]), 1024)]
+            if len(_[sentence])>chunk:
+                chunked = [_[sentence][i:i+chunk] for i in range(0, len(_[sentence]), chunk)]
                 _+=chunked
                 to_pop.append(sentence)
         [_.pop(sentence) for sentence in to_pop]
