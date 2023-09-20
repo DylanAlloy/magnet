@@ -15,8 +15,8 @@ class Charge:
         try:
             model = SentenceTransformer(self.model)
             d = model[1].word_embedding_dimension
+            all_embeddings = []
             if self.utils.check_cuda():
-                all_embeddings = []
                 sentences_index = faiss.IndexFlatIP(d)
                 co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
                 sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
@@ -27,7 +27,7 @@ class Charge:
                 for i in pbar:
                     sentences = df['sentences'].iloc[i]
                     embeddings = model.encode(sentences, normalize_embeddings=True)
-                    all_embeddings.append(embeddings)
+                    all_embeddings.append([embeddings])
                     pbar.set_description(
                         _f(
                             "success",
