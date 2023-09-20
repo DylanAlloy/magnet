@@ -189,8 +189,7 @@ class FinePrep:
         model: str = "BAAI/bge-large-en-v1.5",
         use_multiprocessing: bool = False,
         prompt: str = None,
-        task: str = None,
-        splitter: any = None
+        task: str = None
     ):
         if task is None:
             return _f("fatal", 'please pass "retrieval" or "similarity" as `task`')
