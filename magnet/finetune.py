@@ -38,15 +38,13 @@ def _batch_search(index, query, topk, batch_size: int = 64):
 def _score_data_job(args):
     (
         group_by,
-        plaintext_column,
         chunk_start,
         chunk_end,
         df,
         training_data,
         model,
         prompt,
-        task,
-        splitter
+        task
     ) = args
     try:
         pbar = tqdm(range(chunk_start, chunk_end))
@@ -187,7 +185,6 @@ class FinePrep:
     def generate_scored_data(
         self,
         group_by: str = "id",
-        plaintext_column: str = "clean",
         split: int = 16,
         model: str = "BAAI/bge-large-en-v1.5",
         use_multiprocessing: bool = False,
@@ -235,7 +232,6 @@ class FinePrep:
                             args_list.append(
                                 (
                                     group_by,
-                                    plaintext_column,
                                     chunk_start,
                                     chunk_end,
                                     self.df,
@@ -243,7 +239,6 @@ class FinePrep:
                                     _model,
                                     _prompt,
                                     task,
-                                    self.bge_sentence_splitter if splitter is None else splitter
                                 )
                             )
                             _f(
@@ -265,7 +260,6 @@ class FinePrep:
                     i = int((int(len(self.df) / split)))
                     args_list = [
                             group_by,
-                            plaintext_column,
                             i,
                             i + 1,
                             self.df,
@@ -273,7 +267,6 @@ class FinePrep:
                             _model,
                             _prompt,
                             task,
-                            self.bge_sentence_splitter if splitter is None else splitter
                         ]
                     for i in range(int(len(self.df) / split)):
                         _score_data_job(
@@ -361,16 +354,3 @@ class FinePrep:
             return _f("success", f"written - {final_path}")
         except Exception as e:
             _f("fatal", e)
-
-    def bge_sentence_splitter(self, data):
-        to_pop = []
-        chunk = 768
-        self.utils.nlp.max_length = len(data) + 100
-        _ = list([str(x) for x in self.utils.nlp(data).sents])
-        for sentence in range(len(_)-1):
-            if len(_[sentence])>chunk:
-                chunked = [_[sentence][i:i+chunk] for i in range(0, len(_[sentence]), chunk)]
-                _+=chunked
-                to_pop.append(sentence)
-        [_.pop(sentence) for sentence in to_pop]
-        return _
