@@ -54,14 +54,8 @@ def _score_data_job(args):
             context_index, sentences_index = random.randint(0, len(df)), random.randint(
                 0, len(df)
             )
-            q1, q2 = (
-                (
-                    df["sentences"].iloc[sentences_index],
-                    splitter(df[plaintext_column].iloc[context_index]),
-                )
-                if task == "similarity"
-                else (df["sentences"].iloc[sentences_index], df[plaintext_column].iloc[context_index])
-            )
+            q1, q2 = df["sentences"].iloc[sentences_index], \
+                        splitter(df[plaintext_column].iloc[context_index])
             _min = min([len(q1), len(q2)])
             if _min > 2:
                 if task == 'similarity':
