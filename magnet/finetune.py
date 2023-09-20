@@ -18,7 +18,6 @@ def _create_index(embeddings, use_gpu):
     index.add(embeddings)
     return index
 
-
 def _batch_search(index, query, topk, batch_size: int = 64):
     all_scores, all_inxs = [], []
     for start_index in tqdm(
@@ -33,7 +32,6 @@ def _batch_search(index, query, topk, batch_size: int = 64):
         all_scores.extend(batch_scores.tolist())
         all_inxs.extend(batch_inxs.tolist())
     return all_scores, all_inxs
-
 
 def _score_data_job(args):
     (
@@ -275,7 +273,6 @@ class FinePrep:
                 final_path = os.path.join(self.cleaned_dir, f"{self.filename}")
                 self.save(final_path, training_data)
                 self.df = training_data
-                _f("success", f"saved to - {final_path}")
             except Exception as e:
                 _f("fatal", e)
         else:
