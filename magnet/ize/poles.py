@@ -15,10 +15,12 @@ class Charge:
         try:
             model = SentenceTransformer(self.model)
             d = model[1].word_embedding_dimension
-            sentences_index = faiss.IndexFlatL2(d)
             if self.utils.check_cuda():
+                sentences_index = faiss.IndexFlatIP(d)
                 co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
                 sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
+            else:
+                sentences_index = faiss.IndexFlatL2(d)
             if sentences_index.is_trained:
                 pbar = tqdm(range(len(df)))
                 for i in pbar:
