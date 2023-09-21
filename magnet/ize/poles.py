@@ -73,9 +73,9 @@ class Charge:
             f = open(index_path, 'rb')
             reader = faiss.PyCallbackIOReader(f.read)
             index = faiss.read_index(reader)
-            if self.utils.check_cuda():
-                co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
-                index = faiss.index_cpu_to_all_gpus(index, co=co)
+            # if self.utils.check_cuda():
+            #     co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
+            #     index = faiss.index_cpu_to_all_gpus(index, co=co)
             self.sentences_index = index
             _f('success', f'index loaded - {index_path}')
         except Exception as e:
