@@ -11,7 +11,7 @@ class Charge:
         self.sentences_index = None
         self.utils = Utils()
         
-    def index_document_embeddings(self, df: pd.DataFrame = None):
+    def index_document_embeddings(self, df: pd.DataFrame = None, cuda: bool = False):
         try:
             model = SentenceTransformer(self.model)
             d = model[1].word_embedding_dimension
@@ -20,14 +20,14 @@ class Charge:
                 for sentence in df['sentences'].iloc[i]:
                     documents.append((df['id'].iloc[i], sentence))
             sentences = [s[1] for s in documents]
-            # cuda = self.utils.check_cuda()
-            # if cuda:
-            #     sentences_index = faiss.IndexFlatIP(d)
-            #     co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
-            #     sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
-            # else:
             all_embeddings = []
-            sentences_index = faiss.IndexFlatL2(d)
+            if cuda:
+                cuda = self.utils.check_cuda()
+                sentences_index = faiss.IndexFlatIP(d)
+                co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
+                sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
+            else:
+                sentences_index = faiss.IndexFlatL2(d)
             if sentences_index.is_trained:
                 pbar = tqdm(range(len(sentences)))
                 for i in pbar:
@@ -68,14 +68,16 @@ class Charge:
         else:
             _f('fatal', 'no index in memory')
 
-    def load_embeddings(self, index_path: str = None):
+    def load_embeddings(self, index_path: str = None, cuda: bool = False):
         try:
             f = open(index_path, 'rb')
             reader = faiss.PyCallbackIOReader(f.read)
-            index = faiss.read_index(reader)
-            # if self.utils.check_cuda():
-            #     co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
-            #     index = faiss.index_cpu_to_all_gpus(index, co=co)
+            if cuda:
+                self.utils.check_cuda()
+                co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
+                index = faiss.index_cpu_to_all_gpus(index, co=co)
+            else:
+                index = faiss.read_index(reader)
             self.sentences_index = index
             _f('success', f'index loaded - {index_path}')
         except Exception as e:
