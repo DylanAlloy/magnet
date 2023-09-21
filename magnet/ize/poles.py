@@ -15,25 +15,28 @@ class Charge:
         try:
             model = SentenceTransformer(self.model)
             d = model[1].word_embedding_dimension
-            all_embeddings = []
-            cuda = self.utils.check_cuda()
+            documents = []
+            for i in range(len(df)):
+                for sentence in df['sentences'].iloc[i]:
+                    documents.append((df['answerId'].iloc[i], sentence))
+            sentences = [s[1] for s in documents]
+            # cuda = self.utils.check_cuda()
             # if cuda:
             #     sentences_index = faiss.IndexFlatIP(d)
             #     co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
             #     sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
             # else:
+            all_embeddings = []
             sentences_index = faiss.IndexFlatL2(d)
             if sentences_index.is_trained:
-                pbar = tqdm(range(len(df)))
+                pbar = tqdm(range(len(sentences)))
                 for i in pbar:
-                    sentences = df['sentences'].iloc[i]
-                    embeddings = model.encode(sentences, batch_size=256)
-                    for embedding in embeddings:
-                        all_embeddings.append(embedding)
+                    embedding = model.encode(sentences[i], normalize_embeddings=True)
+                    all_embeddings.append(embedding)
                     pbar.set_description(
                         _f(
                             "success",
-                            f"embedded {df['answerId'].iloc[i]}",
+                            f"embedded sentence {i}",
                             no_print=True,
                         ),
                         refresh=True,
@@ -45,15 +48,15 @@ class Charge:
         except Exception as e:
             _f('fatal', e)
     
-    def search_document_embeddings(self, q: str = None, k: int = 64):
+    def search_document_embeddings(self, q: str = None, k: int = 64, df: pd.DataFrame = None):
         try:
             model = SentenceTransformer(self.model)
-            xq = model.encode(q, normalize_embeddings=True)
+            xq = model.encode([q])
             D, I  = self.sentences_index.search(xq, k)
             _f('info', f'found {I} indices')
             results = []
-            for i in range(len(I)):
-                results.append(self.df['sentences'].iloc[i])
+            for i, val in enumerate(I[0].tolist()):
+                results.append(df['sentences'].iloc[val])
             return results
         except Exception as e:
             _f('fatal', e)
@@ -70,7 +73,7 @@ class Charge:
             f = open(index_path, 'rb')
             reader = faiss.PyCallbackIOReader(f.read)
             index = faiss.read_index(reader)
-            if Utils.check_cuda():
+            if self.utils.check_cuda():
                 co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
                 index = faiss.index_cpu_to_all_gpus(index, co=co)
             self.sentences_index = index
