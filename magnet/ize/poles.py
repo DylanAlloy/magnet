@@ -18,7 +18,7 @@ class Charge:
             documents = []
             for i in range(len(df)):
                 for sentence in df['sentences'].iloc[i]:
-                    documents.append((df['answerId'].iloc[i], sentence))
+                    documents.append((df['id'].iloc[i], sentence))
             sentences = [s[1] for s in documents]
             # cuda = self.utils.check_cuda()
             # if cuda:
