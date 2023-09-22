@@ -54,4 +54,4 @@ The larger datasets listed are curated with a lot more attention to quality for 
 
 ## bad code
 
-- [x] `spacy.nlp` is used poorly throughout, need to make it possible for folks to make sentence splitter hooks of their own and `spacy` can be a default fallback
+- [x] `spacy.nlp` is used poorly throughout, need to make it possible to make sentence splitter hooks of our own and `spacy` can be a default fallback
