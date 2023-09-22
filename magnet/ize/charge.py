@@ -45,6 +45,8 @@ class Pole:
                 sentences_index.add(np.asarray(all_embeddings, dtype=np.float32))
                 self.sentences_index =  faiss.index_gpu_to_cpu(sentences_index) if cuda else sentences_index
                 _f('success', 'index created')
+            else:
+                return _f('fatal', 'index of this type must be trained')
         except Exception as e:
             _f('fatal', e)
     
