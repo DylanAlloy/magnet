@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from .utils import _f, Utils
+from tqdm import tqdm
 
 class Processor:
     def __init__(self):
@@ -54,7 +55,8 @@ class Processor:
                 sentence_splitter = self.bge_sentence_splitter if splitter is None else splitter
                 all_sentences = []
                 knowledge_base = pd.DataFrame()
-                self.df["sentences"] = self.df[text_column].apply(
+                tqdm.pandas()
+                self.df["sentences"] = self.df[text_column].progress_apply(
                     lambda x: [
                         str(s) for s in sentence_splitter(self.utils.normalize_text(x))
                     ]
