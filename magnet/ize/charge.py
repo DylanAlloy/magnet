@@ -21,8 +21,8 @@ class Pole:
                     documents.append((df['id'].iloc[i], sentence))
             sentences = [s[1] for s in documents]
             all_embeddings = []
+            cuda = self.utils.check_cuda() if cuda else False
             if cuda:
-                cuda = self.utils.check_cuda()
                 sentences_index = faiss.IndexFlatIP(d)
                 co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
                 sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
@@ -43,7 +43,7 @@ class Pole:
                     )
                 _f('wait', f'indexing {len(all_embeddings)} objects')
                 sentences_index.add(np.asarray(all_embeddings, dtype=np.float32))
-                self.sentences_index =  sentences_index # faiss.index_gpu_to_cpu(sentences_index) if cuda else
+                self.sentences_index =  faiss.index_gpu_to_cpu(sentences_index) if cuda else sentences_index
                 _f('success', 'index created')
         except Exception as e:
             _f('fatal', e)
