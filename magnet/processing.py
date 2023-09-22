@@ -3,26 +3,10 @@ import os
 from .utils import _f, Utils
 
 class Processor:
-    def __init__(
-        self, filename: str = None, raw_dir: str = None, cleaned_dir: str = None
-    ):
+    def __init__(self):
         self.df = None
-        self.filename = filename if filename else _f("warn", "no filepath passed!")
-        self.raw_dir = (
-            os.path.abspath(raw_dir) if raw_dir else _f("warn", "no raw_dir passed!")
-        )
-        self.cleaned_dir = (
-            os.path.abspath(cleaned_dir)
-            if cleaned_dir
-            else _f("warn", "no cleaned_dir passed!")
-        )
-        
         self.utils = Utils()
-        _f(
-            "info", "Processor init"
-        ) if self.filename and self.raw_dir and self.cleaned_dir else _f(
-            "warn", "Processor partially loaded..."
-        )
+
     def save(self, filename: str = None, raw: pd.DataFrame = None):
         try:
             file_extension = os.path.splitext(filename)[-1]
@@ -42,7 +26,7 @@ class Processor:
     def load(self, raw: str | pd.DataFrame = None):
         try:
             if isinstance(raw, str):
-                raw_data_dir = os.path.join(self.raw_dir, raw)
+                raw_data_dir = raw
                 file_extension = os.path.splitext(raw)[-1]
                 file_handlers = {
                     ".csv": pd.read_csv,
@@ -63,18 +47,26 @@ class Processor:
         except Exception as e:
             _f("fatal", e)
 
-    def export_with_sentences(self, category: str = "clean", splitter: any = None):
+    def export_as_sentences(self, path: str = None, text_column: str = "clean", id_column: str = 'id', splitter: any = None):
         if self.df is not None:
             try:
                 _f("wait", f"get coffee or tea - {len(self.df)} processing...")
                 sentence_splitter = self.bge_sentence_splitter if splitter is None else splitter
-                self.df["sentences"] = self.df[category].apply(
+                all_sentences = []
+                knowledge_base = pd.DataFrame()
+                self.df["sentences"] = self.df[text_column].apply(
                     lambda x: [
                         str(s) for s in sentence_splitter(self.utils.normalize_text(x))
                     ]
                 )
-                final_path = os.path.join(self.cleaned_dir, f"{self.filename}.parquet")
-                self.save(final_path, self.df)
+                for i in range(len(self.df)):
+                    for s in self.df['sentences'].iloc[i]:
+                        a = self.df[id_column].iloc[i]
+                        all_sentences.append((a, s))
+                knowledge_base['sentences'] = [x[1] for x in all_sentences]
+                knowledge_base['id'] = [x[0] for x in all_sentences]
+                self.df = knowledge_base
+                self.save(path, self.df)
                 return
             except Exception as e:
                 _f("fatal", e)

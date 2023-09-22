@@ -150,9 +150,8 @@ class FinePrep:
         for row in pbar:
             kb_index = random.randint(0, len(data))
             q = data["sentences"].iloc[kb_index]
-            embeddings = pole.search_document_embeddings(q, k=k, df=data)
-            pos_results = embeddings[0:num_pos]
-            neg_results = embeddings[-1][0:num_neg]
+            pos_results = pole.search_document_embeddings(q, k=k, df=data)[0:num_pos]
+            neg_results = pos_results[-1][0:num_neg]
             json.dump(
                 {
                     "query": q,

@@ -5,7 +5,7 @@ from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 import numpy as np
 
-class Charge:
+class Pole:
     def __init__(self, model: str = 'BAAI/bge-large-en-v1.5'):
         self.model = model
         self.sentences_index = None
@@ -53,7 +53,6 @@ class Charge:
             model = SentenceTransformer(self.model)
             xq = model.encode([q])
             D, I  = self.sentences_index.search(xq, k)
-            _f('info', f'found {I} indices')
             results = []
             for i, val in enumerate(I[0].tolist()):
                 results.append(df['sentences'].iloc[val])
