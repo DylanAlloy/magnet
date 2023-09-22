@@ -21,7 +21,7 @@ class Pole:
                     documents.append((df['id'].iloc[i], sentence))
             dedupe = pd.DataFrame(documents, columns=['id', 'sentence'])
             dedupe = dedupe.drop_duplicates().dropna()
-            sentences = [s[1] for s in dedupe]
+            sentences = [s for s in dedupe['sentences'].tolist()]
             all_embeddings = []
             cuda = self.utils.check_cuda() if cuda else False
             if cuda:
