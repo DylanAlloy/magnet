@@ -15,7 +15,7 @@ class Pole:
         try:
             model = SentenceTransformer(self.model)
             d = model[1].word_embedding_dimension
-            dedupe = df.drop_duplicates().dropna()
+            dedupe = df.drop_duplicates(subset=['sentences']).dropna()
             sentences = [s for s in dedupe['sentences'].tolist()]
             all_embeddings = []
             cuda = self.utils.check_cuda() if cuda else False
