@@ -134,9 +134,20 @@ class Utils:
             if not isinstance(_, str):
                 _f('warn', f'non-string found {type(_)}')
             _ = _.strip()
-            _ = _.replace('\n','')
-            _ = _.replace('\t','')
-            _ = _.replace('"', "'")
+            _ = _.replace('.', '') if (_.count('.') / len(_)) * 100 > 0.3 else _
+
+            # Check if more than 20% of the string is integers
+            num_digits = sum(1 for char in _ if char.isdigit())
+            if (num_digits / len(_)) >= 0.2:
+                _ = ""  # Replace with empty quotes
+            else:
+                _ = _.replace('"', "'")
+
+            # Check if the string has at least 5 words
+            words = _.split()
+            if len(words) < 5:
+                _ = ""  # Replace with empty quotes if fewer than 5 words
+
             _ = _.replace("\t", "")
             _ = _.replace("\n", "")
             _ = _.replace("\xa0", "")
@@ -145,6 +156,7 @@ class Utils:
             return str(_)
         except Exception as e:
             _f("fatal", e)
+
 
     def upload_to_s3(
         self,

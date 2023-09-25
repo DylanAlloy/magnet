@@ -15,6 +15,7 @@ class Pole:
         try:
             model = SentenceTransformer(self.model)
             d = model[1].word_embedding_dimension
+            M = 32
             dedupe = df.drop_duplicates(subset=['sentences']).dropna()
             sentences = [s for s in dedupe['sentences'].tolist()]
             all_embeddings = []
@@ -24,8 +25,10 @@ class Pole:
                 co, co.shard, co.useFloat16 = faiss.GpuMultipleClonerOptions(), True, True
                 sentences_index = faiss.index_cpu_to_all_gpus(sentences_index, co=co)
             else:
-                sentences_index = faiss.IndexFlatL2(d)
+                sentences_index = faiss.IndexHNSWFlat(d, M)
             if sentences_index.is_trained:
+                sentences_index.hnsw.efConstruction = 40  
+                sentences_index.hnsw.efSearch = 40
                 pbar = tqdm(range(len(sentences)))
                 for i in pbar:
                     embedding = model.encode(sentences[i], normalize_embeddings=True)

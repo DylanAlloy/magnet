@@ -69,7 +69,7 @@ class Prism:
             q = data["sentences"].iloc[kb_index]
             embeddings = pole.search_document_embeddings(q, k=k, df=self.df)
             pos_results = embeddings[0:num_pos]
-            neg_results = embeddings[-1][0:num_neg]
+            neg_results = embeddings[::-1][0:num_neg]
             json.dump(
                 {
                     "query": q,

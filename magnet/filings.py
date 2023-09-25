@@ -2,7 +2,6 @@ import pandas as pd
 import os
 from .utils import _f, Utils
 from tqdm import tqdm
-
 class Processor:
     def __init__(self):
         self.df = None
@@ -49,6 +48,7 @@ class Processor:
             _f("fatal", e)
 
     def export_as_sentences(self, path: str = None, text_column: str = "clean", id_column: str = 'id', splitter: any = None):
+        self.df = self.df.dropna()
         if self.df is not None:
             try:
                 _f("wait", f"get coffee or tea - {len(self.df)} processing...")
@@ -76,14 +76,14 @@ class Processor:
             return _f("fatal", "no data loaded!")
         
     def bge_sentence_splitter(self, data):
-        to_pop = []
-        chunk = 768
+        chunk_size = 768
         self.utils.nlp.max_length = len(data) + 100
-        _ = list([str(x) for x in self.utils.nlp(data).sents])
-        for sentence in range(len(_)-1):
-            if len(_[sentence])>chunk:
-                chunked = [_[sentence][i:i+chunk] for i in range(0, len(_[sentence]), chunk)]
-                _+=chunked
-                to_pop.append(sentence)
-        [_.pop(sentence) for sentence in to_pop]
-        return _
+        sentences = [str(x) for x in self.utils.nlp(data).sents]
+
+        new_sentences = []
+        for sentence in sentences:
+            chunks = [sentence[i:i + chunk_size] for i in range(0, len(sentence), chunk_size)]
+            new_sentences.extend(chunks)
+
+        return new_sentences
+
