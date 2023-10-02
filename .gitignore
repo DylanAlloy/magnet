@@ -9,6 +9,8 @@ raw/
 .DS_Store
 local_example.ipynb
 test.ipynb
+qdrant_storage/
+volumes/
 
 # C extensions
 *.so
