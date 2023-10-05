@@ -1,17 +1,17 @@
 from fastapi import FastAPI
 
 # The file where NeuralSearcher is stored
-from neural_search import NeuralSearcher
+from search.neural_search import NeuralSearcher
 
 app = FastAPI()
 
 # Create a neural searcher instance
-neural_searcher = NeuralSearcher(collection_name='filings')
+neural_searcher = NeuralSearcher(collection_name='digits_filings')
 
 @app.get("/api/search")
 def search_startup(q: str):
     return {
-        "result": neural_search.search(text=q)
+        "result": neural_searcher.search(text=q)
     }
 
 

@@ -24,6 +24,6 @@ class NeuralSearcher:
         )
         # `search_result` contains found vector ids with similarity scores along with the stored payload
         # In this function you are interested in payload only
-        payloads = [hit.payload for hit in search_result]
+        payloads = [hit for hit in search_result]
         return payloads
 
