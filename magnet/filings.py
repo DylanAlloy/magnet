@@ -75,15 +75,22 @@ class Processor:
         else:
             return _f("fatal", "no data loaded!")
         
-    def bge_sentence_splitter(self, data):
-        chunk_size = 768
+    def bge_sentence_splitter(self, data, window_size=768, overlap=256):
         self.utils.nlp.max_length = len(data) + 100
         sentences = [str(x) for x in self.utils.nlp(data).sents]
 
         new_sentences = []
         for sentence in sentences:
-            chunks = [sentence[i:i + chunk_size] for i in range(0, len(sentence), chunk_size)]
-            new_sentences.extend(chunks)
+            start_idx = 0
+            end_idx = window_size
+            
+            while start_idx < len(sentence):
+                chunk = sentence[start_idx:end_idx]
+                new_sentences.append(chunk)
+                
+                # Slide the window, ensuring we don't exceed the sentence boundaries
+                start_idx += (window_size - overlap)
+                end_idx = min(start_idx + window_size, len(sentence))
 
         return new_sentences
 
