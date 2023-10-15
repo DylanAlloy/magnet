@@ -93,4 +93,27 @@ class Processor:
                 end_idx = min(start_idx + window_size, len(sentence))
 
         return new_sentences
+    
+    def mistral_sentence_splitter(self, data, window_size=768, overlap=70):
+        self.utils.nlp.max_length = len(data) + 100
+        sentences = [str(x) for x in self.utils.nlp(data).sents]
 
+        new_sentences = []
+        for sentence in sentences:
+            tokens = self.utils.nlp.tokenizer(sentence)
+            num_tokens = len(tokens)
+            
+            start_token_idx = 0
+            end_token_idx = min(window_size, num_tokens)
+            
+            while start_token_idx < num_tokens:
+                start_char_idx = tokens[start_token_idx].idx
+                end_char_idx = tokens[end_token_idx - 1].idx + len(tokens[end_token_idx - 1])
+                chunk = sentence[start_char_idx:end_char_idx]
+                new_sentences.append(chunk)
+                
+                # Slide the window, ensuring we don't exceed the token or character boundaries
+                start_token_idx += (window_size - overlap)
+                end_token_idx = min(start_token_idx + window_size, num_tokens)
+                
+        return new_sentences
