@@ -75,7 +75,7 @@ class Processor:
         else:
             return _f("fatal", "no data loaded!")
         
-    def bge_sentence_splitter(self, data, window_size=768, overlap=256):
+    def bge_sentence_splitter(self, data, window_size=768, overlap=76):
         self.utils.nlp.max_length = len(data) + 100
         sentences = [str(x) for x in self.utils.nlp(data).sents]
 
@@ -94,7 +94,7 @@ class Processor:
 
         return new_sentences
     
-    def mistral_sentence_splitter(self, data, window_size=768, overlap=70):
+    def mistral_sentence_splitter(self, data, window_size=768, overlap=76):
         self.utils.nlp.max_length = len(data) + 100
         sentences = [str(x) for x in self.utils.nlp(data).sents]
 
